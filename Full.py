@@ -157,3 +157,4 @@ def delete_employee(Emp_id: str):
         return {"message": "employee deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"failed to update employee: {e}")
+

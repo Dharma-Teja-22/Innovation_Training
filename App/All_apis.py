@@ -62,3 +62,22 @@ def delete_employee(Emp_id: str):
         return {"message": "employee deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"failed to update employee: {e}")
+
+
+def serialize_document(document: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively convert MongoDB document to JSON serializable format."""
+    for key, value in document.items():
+        if isinstance(value, ObjectId):
+            document[key] = str(value)
+        elif isinstance(value, dict):
+            document[key] = serialize_document(value)
+        elif isinstance(value, list):
+            document[key] = [serialize_document(item) if isinstance(item, dict) else item for item in value]
+    return document
+
+
+@emp_router.get("/fetch-data")
+def fetch_data() -> List[Dict[str, Any]]:
+    cursor = collection.find()
+    data = [serialize_document(doc) for doc in cursor]
+    return data
